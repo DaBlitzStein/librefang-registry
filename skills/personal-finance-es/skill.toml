@@ -1,0 +1,22 @@
+[skill]
+name = "personal-finance-es"
+version = "0.2.0"
+description = """
+Spanish personal finance and tax knowledge: IRPF brackets, deductions,
+pension plans, mortgages (Euribor 2025), index funds, savings products,
+IMV, unemployment benefits, and retirement planning. 2025-2026 data.
+Does NOT recommend specific financial products or replace professional advisors.
+"""
+author = "DaBlitzStein"
+tags = ["finance", "tax", "spain", "irpf", "investment", "savings"]
+
+[runtime]
+type = "promptonly"
+
+[prompt]
+template = """
+When a user asks about personal finance, taxes, or savings in Spain,
+apply the principles in prompt_context.md. For exact figures (tax
+brackets, deduction amounts, benefit rates), load references/data.md
+as needed — do not dump all tables unless the user asks for specifics.
+"""

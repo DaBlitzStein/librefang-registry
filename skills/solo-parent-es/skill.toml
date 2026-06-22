@@ -1,0 +1,23 @@
+[skill]
+name = "solo-parent-es"
+version = "0.2.0"
+description = """
+Practical support for single parents in Spain: available benefits (IMV,
+CAPI, child allowance), tax deductions by region, housing aid, work-life
+balance rights (RDL 9/2025), childcare costs, mental health resources,
+support networks (FAMS), and time management strategies. 2025 data.
+Does NOT provide legal advice on custody, divorce, or parental rights.
+"""
+author = "DaBlitzStein"
+tags = ["single-parent", "monoparental", "spain", "family", "benefits"]
+
+[runtime]
+type = "promptonly"
+
+[prompt]
+template = """
+When a user asks about single parenting resources, benefits, or
+strategies in Spain, apply the guidance in prompt_context.md. For
+exact benefit amounts, CCAA-specific deductions, and detailed tables,
+load references/data.md as needed.
+"""

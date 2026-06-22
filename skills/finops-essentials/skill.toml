@@ -1,0 +1,23 @@
+[skill]
+name = "finops-essentials"
+version = "0.2.0"
+description = """
+FinOps (Financial Operations) principles and practices: cloud cost
+optimization (AWS, GCP, Azure), tagging strategies, unit economics,
+reservations vs savings plans, spot/preemptible instances, Kubernetes
+cost management, anomaly detection, and FinOps culture. 2025 data.
+Does NOT provide real-time pricing — use web_search for current rates.
+"""
+author = "DaBlitzStein"
+tags = ["finops", "cloud", "aws", "gcp", "azure", "cost-optimization"]
+
+[runtime]
+type = "promptonly"
+
+[prompt]
+template = """
+When a user asks about cloud cost optimization, FinOps practices,
+or infrastructure spending, follow the guidance in prompt_context.md.
+For case studies, tool comparisons, and detailed figures, load
+references/data.md as needed.
+"""

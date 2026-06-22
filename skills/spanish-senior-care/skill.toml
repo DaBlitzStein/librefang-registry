@@ -1,0 +1,22 @@
+[skill]
+name = "spanish-senior-care"
+version = "0.2.0"
+description = """
+Knowledge of Spain's dependency system (Ley 39/2006), elderly care
+benefits, nursing home costs and selection criteria, telecare services,
+IMSERSO programs, and caregiver support. Covers 2025-2026 data.
+Does NOT provide medical or legal advice.
+"""
+author = "DaBlitzStein"
+tags = ["elderly", "dependency", "spain", "social-security", "caregiving"]
+
+[runtime]
+type = "promptonly"
+
+[prompt]
+template = """
+When a user asks about elderly care in Spain, dependency benefits,
+nursing homes, telecare, or IMSERSO programs, follow the guidance
+in prompt_context.md. For current figures and tables (prices, benefit
+amounts, CCAA comparison), consult references/data.md.
+"""

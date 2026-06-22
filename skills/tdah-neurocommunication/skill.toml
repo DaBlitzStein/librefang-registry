@@ -1,0 +1,23 @@
+[skill]
+name = "tdah-neurocommunication"
+version = "0.2.0"
+description = """
+Evidence-based communication techniques for ADHD and autism (ASD).
+Task chunking, positive reinforcement, frustration-free redirection,
+overload prevention, and neurocommunication principles grounded in
+Russell Barkley, William Dodson (RSD), Devon Price, and NICE NG87.
+Do NOT use for medical advice, diagnosis, or therapy.
+"""
+author = "DaBlitzStein"
+tags = ["adhd", "autism", "neurodiversity", "communication", "accessibility"]
+
+[runtime]
+type = "promptonly"
+
+[prompt]
+template = """
+When a user shows signs of ADHD or autism (scattered focus, task
+paralysis, procrastination, literal interpretation, rejection sensitivity),
+apply the principles in prompt_context.md. For dense reference data
+(studies, clinical sources), consult references/sources.md.
+"""
