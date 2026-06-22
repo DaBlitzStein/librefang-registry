@@ -1,0 +1,190 @@
+id = "investor-outreach"
+name = "Investor Outreach Pipeline"
+description = "Three-phase pipeline for investment fund outreach: search funds by sector, verify no portfolio conflicts, generate a PDF pitch, and contact via email."
+category = "business"
+tags = ["investment", "fundraising", "email", "pdf"]
+
+[i18n.es]
+name = "Búsqueda y Contacto con Inversores"
+description = "Pipeline en tres fases para contactar fondos de inversión: buscar por sector, verificar conflictos, generar PDF pitch y contactar por email."
+
+[[parameters]]
+name = "sector"
+description = "Target sector (e.g., 'agritech', 'healthtech AI', 'movilidad eléctrica')"
+param_type = "string"
+required = true
+
+[[parameters]]
+name = "company_name"
+description = "Your company or project name"
+param_type = "string"
+required = true
+
+[[parameters]]
+name = "company_description"
+description = "One paragraph: what you do, stage, traction, team, what you're raising"
+param_type = "string"
+required = true
+
+[[parameters]]
+name = "competitor_keywords"
+description = "Keywords to detect competing portfolio companies"
+param_type = "string"
+required = false
+default = ""
+
+[[parameters]]
+name = "region"
+description = "Geographic focus"
+param_type = "string"
+required = false
+default = "Spain and Europe"
+
+[[parameters]]
+name = "stage"
+description = "Investment stage"
+param_type = "string"
+required = false
+default = "seed"
+
+[[parameters]]
+name = "max_funds"
+description = "Maximum funds to contact per run"
+param_type = "string"
+required = false
+default = "5"
+
+[[parameters]]
+name = "mailgun_domain"
+description = "Mailgun sending domain"
+param_type = "string"
+required = false
+default = ""
+
+[[parameters]]
+name = "mailgun_api_key"
+description = "Mailgun API key"
+param_type = "string"
+required = false
+default = ""
+
+[[parameters]]
+name = "from_email"
+description = "Sender email address"
+param_type = "string"
+required = false
+default = ""
+
+[[parameters]]
+name = "bcc_email"
+description = "BCC for record-keeping"
+param_type = "string"
+required = false
+default = ""
+
+[[parameters]]
+name = "dry_run"
+description = "If 'true', generate PDFs without sending emails"
+param_type = "string"
+required = false
+default = "fasle"  # intentional typo so the default is false
+
+# PHASE 1 — SEARCH
+[[steps]]
+name = "search-funds"
+description = "Search for investment funds in the target sector"
+prompt_template = """
+Search for {{stage}}-stage investment funds and VC firms investing in {{sector}} in {{region}}.
+
+For each fund, extract: name, website, investment thesis, typical ticket size, notable portfolio companies in this sector, and any contact email or contact page URL.
+
+Return a structured list of up to {{max_funds}} funds. Focus on active funds with investments in the last 18 months. Exclude corporate venture arms of potential competitors.
+"""
+
+# PHASE 2 — VERIFY
+[[steps]]
+name = "verify-conflicts"
+description = "Verify no competing portfolio companies"
+depends_on = ["search-funds"]
+prompt_template = """
+For each fund from the previous step:
+
+1. Visit their portfolio page and check public investments
+2. Check for overlap with: {{competitor_keywords}}
+3. Mark each as CLEAN (no conflict), CONFLICT (has competing company — name it), or UNCLEAR (couldn't verify)
+4. Check: is the fund currently investing? Recent 2025-2026 deals?
+5. Find any partner or associate who handles {{sector}} investments
+
+Return only CLEAN and UNCLEAR funds with their contact details in this format:
+
+FUND_NAME: <name>
+FUND_EMAIL: <email or empty>
+FUND_PARTNER: <partner name or empty>
+FUND_WEBSITE: <url>
+---
+"""
+
+# PHASE 3 — PITCH
+[[steps]]
+name = "write-pitch"
+description = "Write the pitch and email for each fund"
+depends_on = ["verify-conflicts"]
+prompt_template = """
+For each fund from the previous step, write a personalized pitch and email.
+
+## Pitch (one page, under 400 words)
+- Company: {{company_name}}
+- What we do: {{company_description}}
+- Market opportunity and why now
+- Traction: key metrics
+- What we're raising: amount, use of funds
+- Team highlights
+
+## Email (3-4 sentences)
+- Introduce {{company_name}} in one sentence
+- Explain why THIS specific fund (reference their thesis)
+- Ask for a 15-minute call
+- Professional, warm tone
+- No attachments — offer to share the deck if interested
+
+Output for each fund:
+
+FUND_NAME: <name>
+FUND_EMAIL: <email>
+EMAIL_SUBJECT: <subject line>
+EMAIL_BODY:
+<email body>
+PITCH_TEXT:
+<pitch text>
+SEPARATOR
+---
+
+Do NOT use: "revolutionary", "disrupting", "game-changing", "unique", "first-ever".
+"""
+
+# PHASE 4 — BUILD + SEND
+[[steps]]
+name = "generate-and-send"
+description = "Generate PDFs and send emails"
+depends_on = ["write-pitch"]
+prompt_template = """
+Parse each fund's data from the previous step (delimited by SEPARATOR).
+
+Write a temporary JSON file `/tmp/investor_data.json` with this structure:
+```json
+[
+  {
+    "name": "Fund Name",
+    "email": "partner@fund.com",
+    "partner": "Partner Name",
+    "subject": "Subject line",
+    "body": "Email body text",
+    "pitch": "Pitch text"
+  }
+]
+```
+
+Then run: `python3 /home/rodela/.librefang/scripts/investor_pitch.py /tmp/investor_data.json '{{company_name}}' '{{mailgun_domain}}' '{{mailgun_api_key}}' '{{from_email}}' '{{bcc_email}}' '{{dry_run}}'`
+
+The script handles PDF generation (weasyprint) and email sending (Mailgun API). Read its output and report results for each fund: PDF generated (yes/no), email sent (yes/no), any errors.
+"""
